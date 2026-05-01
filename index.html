@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solar Project Financial Calculator</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #ffffff;
+      --bg2:       #f5f5f3;
+      --bg3:       #efefec;
+      --text:      #1a1a18;
+      --text2:     #5f5e5a;
+      --text3:     #888780;
+      --border:    rgba(0,0,0,0.12);
+      --green:     #3b6d11;
+      --green-bg:  #eaf3de;
+      --red:       #a32d2d;
+      --red-bg:    #fcebeb;
+      --radius:    8px;
+      --radius-lg: 12px;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg3);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ── Layout ── */
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 2rem;
+    }
+
+    header h1 {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    header p {
+      font-size: 14px;
+      color: var(--text2);
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--bg);
+      border-radius: var(--radius-lg);
+      border: 0.5px solid var(--border);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text2);
+      letter-spacing: 0.03em;
+      margin-bottom: 1rem;
+    }
+
+    /* ── Inputs ── */
+    .inputs-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 500px) {
+      .inputs-row { grid-template-columns: 1fr; }
+    }
+
+    .field label {
+      display: block;
+      font-size: 13px;
+      color: var(--text2);
+      margin-bottom: 6px;
+    }
+
+    .field select,
+    .field input {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 14px;
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .field select:focus,
+    .field input:focus {
+      border-color: rgba(0,0,0,0.35);
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
+    }
+
+    /* ── Metric cards ── */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .metric {
+      background: var(--bg2);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 4px;
+    }
+
+    .metric-value {
+      font-size: 22px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .metric-sub {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 620px;
+    }
+
+    thead th {
+      text-align: right;
+      padding: 8px 10px;
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--text2);
+      border-bottom: 0.5px solid var(--border);
+      white-space: nowrap;
+    }
+
+    thead th:first-child { text-align: left; }
+
+    tbody td {
+      text-align: right;
+      padding: 7px 10px;
+      border-bottom: 0.5px solid var(--border);
+      color: var(--text);
+    }
+
+    tbody td:first-child {
+      text-align: left;
+      font-weight: 500;
+    }
+
+    tbody tr:hover td { background: var(--bg2); }
+
+    tbody tr:last-child td { border-bottom: none; }
+
+    .pos { color: var(--green); }
+    .neg { color: var(--red); }
+
+    tr.payback-row td { color: var(--green); font-weight: 500; }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 2rem;
+      font-size: 12px;
+      color: var(--text3);
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    footer a {
+      color: var(--text2);
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <header>
+    <h1>Solar Project Financial Calculator</h1>
+    <p>25-year cash flow model for US residential rooftop solar. All-equity, no financing.</p>
+  </header>
+
+  <!-- Inputs -->
+  <div class="card">
+    <div class="card-title">Inputs</div>
+    <div class="inputs-row">
+      <div class="field">
+        <label for="stateSelect">US State</label>
+        <select id="stateSelect"></select>
+      </div>
+      <div class="field">
+        <label for="systemSize">System size (kW DC)</label>
+        <input type="number" id="systemSize" value="10" min="1" max="1000" step="0.5" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="card">
+    <div class="card-title">Key metrics</div>
+    <div class="metrics-grid">
+      <div class="metric">
+        <div class="metric-label">System upfront price</div>
+        <div class="metric-value" id="mGross">—</div>
+        <div class="metric-sub">before ITC</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Net cost after ITC</div>
+        <div class="metric-value" id="mCost">—</div>
+        <div class="metric-sub">after 30% tax credit</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Annual generation</div>
+        <div class="metric-value" id="mGen">—</div>
+        <div class="metric-sub">kWh / year</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Electricity rate</div>
+        <div class="metric-value" id="mRate">—</div>
+        <div class="metric-sub">¢/kWh residential (Year 1)</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Project IRR</div>
+        <div class="metric-value" id="mIRR">—</div>
+        <div class="metric-sub">25-year unlevered</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Payback period</div>
+        <div class="metric-value" id="mPayback">—</div>
+        <div class="metric-sub">simple payback</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cash flow table -->
+  <div class="card">
+    <div class="card-title">25-year cash flow table &nbsp;·&nbsp; ★ = payback year</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Generation (kWh)</th>
+            <th>Elec. rate (¢/kWh)</th>
+            <th>Energy savings ($)</th>
+            <th>O&amp;M cost ($)</th>
+            <th>Net cash flow ($)</th>
+            <th>Cumulative ($)</th>
+          </tr>
+        </thead>
+        <tbody id="cfBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    Electricity rates: <a href="https://www.electricchoice.com/electricity-prices-by-state/" target="_blank">ElectricChoice.com</a> (May 2026) &nbsp;·&nbsp;
+    Assumptions: $2.50/W installed cost · 1,400 kWh/kW/yr · 2.5% annual escalation · $15/kW/yr O&amp;M · 30% ITC Year 0
+  </footer>
+
+</div>
+
+<script>
+  // ── State electricity rates (¢/kWh residential, May 2026, ElectricChoice.com) ──
+  const STATE_RATES = {
+    "Alabama": 16.79, "Alaska": 26.57, "Arizona": 15.62, "Arkansas": 13.32,
+    "California": 33.75, "Colorado": 16.33, "Connecticut": 27.84, "Delaware": 18.39,
+    "District of Columbia": 24.03, "Florida": 15.77, "Georgia": 14.60, "Hawaii": 39.89,
+    "Idaho": 12.51, "Illinois": 18.82, "Indiana": 17.42, "Iowa": 13.54,
+    "Kansas": 15.23, "Kentucky": 13.68, "Louisiana": 12.44, "Maine": 29.55,
+    "Maryland": 22.40, "Massachusetts": 31.51, "Michigan": 20.55, "Minnesota": 16.44,
+    "Mississippi": 14.53, "Missouri": 13.01, "Montana": 14.33, "Nebraska": 13.19,
+    "Nevada": 13.83, "New Hampshire": 25.12, "New Jersey": 22.48, "New Mexico": 15.09,
+    "New York": 23.44, "North Carolina": 14.37, "North Dakota": 12.71, "Ohio": 16.81,
+    "Oklahoma": 13.44, "Oregon": 14.22, "Pennsylvania": 18.15, "Rhode Island": 28.43,
+    "South Carolina": 15.22, "South Dakota": 14.11, "Tennessee": 13.77, "Texas": 15.10,
+    "Utah": 12.89, "Vermont": 22.76, "Virginia": 15.92, "Washington": 12.93,
+    "West Virginia": 13.11, "Wisconsin": 18.06, "Wyoming": 12.55
+  };
+
+  // ── Model constants ──
+  const COST_PER_W  = 2.50;   // $/W installed
+  const GEN_PER_KW  = 1400;   // kWh/kW/year (location-agnostic)
+  const ESCALATION  = 0.025;  // 2.5% annual electricity price escalation
+  const OM_PER_KW   = 15;     // $/kW/year O&M (flat)
+  const ITC         = 0.30;   // 30% Investment Tax Credit applied Year 0
+  const YEARS       = 25;
+
+  // ── Populate state dropdown ──
+  const sel = document.getElementById('stateSelect');
+  Object.keys(STATE_RATES).sort().forEach(state => {
+    const opt = document.createElement('option');
+    opt.value = state;
+    opt.textContent = state;
+    if (state === 'New York') opt.selected = true;
+    sel.appendChild(opt);
+  });
+
+  // ── IRR solver (bisection method) ──
+  // Finds the discount rate that sets NPV of cashflows to zero.
+  function calcIRR(cashflows) {
+    let lo = -0.999, hi = 10.0, mid = 0;
+    for (let i = 0; i < 300; i++) {
+      mid = (lo + hi) / 2;
+      // NPV = sum of CF_t / (1 + r)^t
+      const npv = cashflows.reduce((sum, cf, t) => sum + cf / Math.pow(1 + mid, t), 0);
+      if (Math.abs(npv) < 0.001) break;
+      npv > 0 ? (lo = mid) : (hi = mid);
+    }
+    return mid;
+  }
+
+  // ── Number formatter ──
+  function fmt(n) {
+    if (n === null || n === undefined) return '—';
+    const abs = Math.abs(n);
+    const str = abs.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    return (n < 0 ? '-$' : '$') + str;
+  }
+
+  // ── Main calculation ──
+  function run() {
+    const state  = sel.value;
+    const kw     = parseFloat(document.getElementById('systemSize').value) || 10;
+    const rate   = STATE_RATES[state]; // ¢/kWh
+
+    // Costs
+    const grossCost  = kw * 1000 * COST_PER_W;  // Total installed cost before ITC
+    const itcCredit  = grossCost * ITC;           // 30% ITC reduces Year 0 outflow
+    const netCost    = grossCost - itcCredit;     // Actual cash out in Year 0
+
+    // Generation
+    const annualGen  = kw * GEN_PER_KW;          // kWh/year (flat, no degradation assumed)
+    const annualOM   = kw * OM_PER_KW;           // $/year O&M
+
+    // Build cash flow array: index 0 = Year 0 outflow
+    const cashflows  = [-netCost];
+    const rows       = [];
+    let cumulative   = -netCost;
+    let paybackYear  = null;
+
+    for (let y = 1; y <= YEARS; y++) {
+      // Electricity rate escalates 2.5%/year starting from Year 1
+      const elecRate  = (rate / 100) * Math.pow(1 + ESCALATION, y - 1); // $/kWh
+      const savings   = annualGen * elecRate;   // Revenue from avoided electricity cost
+      const net       = savings - annualOM;     // Net annual cash flow
+      cumulative     += net;
+      cashflows.push(net);
+
+      // Payback = first year cumulative turns non-negative
+      if (paybackYear === null && cumulative >= 0) paybackYear = y;
+
+      rows.push({ y, gen: annualGen, rate: elecRate * 100, savings, om: annualOM, net, cumulative });
+    }
+
+    // IRR
+    const irr = calcIRR(cashflows);
+
+    // ── Update metric cards ──
+    document.getElementById('mGross').textContent   = '$' + Math.round(grossCost).toLocaleString('en-US');
+    document.getElementById('mCost').textContent    = '$' + Math.round(netCost).toLocaleString('en-US');
+    document.getElementById('mGen').textContent     = Math.round(annualGen).toLocaleString('en-US');
+    document.getElementById('mRate').textContent    = rate.toFixed(2) + '¢';
+    document.getElementById('mIRR').textContent     = isFinite(irr) ? (irr * 100).toFixed(1) + '%' : 'N/A';
+    document.getElementById('mPayback').textContent = paybackYear ? paybackYear + ' yrs' : '>25 yrs';
+
+    // ── Render cash flow table ──
+    const tbody = document.getElementById('cfBody');
+    tbody.innerHTML = '';
+
+    // Year 0 row
+    const yr0 = document.createElement('tr');
+    yr0.innerHTML = `
+      <td>0</td>
+      <td>—</td>
+      <td>—</td>
+      <td>—</td>
+      <td class="pos">ITC: +${fmt(itcCredit)}</td>
+      <td class="neg">${fmt(-netCost)}</td>
+      <td class="neg">${fmt(-netCost)}</td>
+    `;
+    tbody.appendChild(yr0);
+
+    // Years 1–25
+    rows.forEach(r => {
+      const isPayback = r.y === paybackYear;
+      const tr = document.createElement('tr');
+      if (isPayback) tr.className = 'payback-row';
+      tr.innerHTML = `
+        <td>${r.y}${isPayback ? ' ★' : ''}</td>
+        <td>${Math.round(r.gen).toLocaleString('en-US')}</td>
+        <td>${r.rate.toFixed(2)}</td>
+        <td class="pos">${fmt(r.savings)}</td>
+        <td class="neg">-${fmt(r.om)}</td>
+        <td class="${r.net >= 0 ? 'pos' : 'neg'}">${fmt(r.net)}</td>
+        <td class="${r.cumulative >= 0 ? 'pos' : 'neg'}">${fmt(r.cumulative)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ── Event listeners ──
+  sel.addEventListener('change', run);
+  document.getElementById('systemSize').addEventListener('input', run);
+
+  // ── Initial render ──
+  run();
+</script>
+
+</body>
+</html>
