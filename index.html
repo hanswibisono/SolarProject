@@ -1,274 +1,276 @@
 <!DOCTYPE html>
+<!--
+  SOLAR PROJECT FINANCIAL CALCULATOR
+  ====================================
+  This file is a single HTML page that does everything:
+  - Shows input fields (HTML)
+  - Makes it look nice (CSS inside <style>)
+  - Does the math and updates the page (JavaScript inside <script>)
+
+  You don't need any other files. Just this one.
+-->
+
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Solar Project Financial Calculator</title>
+  <title>Solar Calculator</title>
+
   <style>
-    /* ── Reset & base ── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    /*
+      CSS = the styling language. Everything inside <style> controls
+      how the page LOOKS (colors, spacing, fonts, layout).
+      A CSS "rule" looks like:  selector { property: value; }
+    */
 
-    :root {
-      --bg:        #ffffff;
-      --bg2:       #f5f5f3;
-      --bg3:       #efefec;
-      --text:      #1a1a18;
-      --text2:     #5f5e5a;
-      --text3:     #888780;
-      --border:    rgba(0,0,0,0.12);
-      --green:     #3b6d11;
-      --green-bg:  #eaf3de;
-      --red:       #a32d2d;
-      --red-bg:    #fcebeb;
-      --radius:    8px;
-      --radius-lg: 12px;
-    }
-
+    /* Apply basic styles to the whole page */
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-      background: var(--bg3);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 2rem 1rem;
-      font-size: 15px;
-      line-height: 1.6;
+      font-family: Arial, sans-serif; /* font for all text */
+      background: #f5f5f5;           /* light gray page background */
+      color: #1a1a1a;                /* dark text color */
+      padding: 2rem;                 /* space around the edges */
     }
 
-    /* ── Layout ── */
-    .page {
-      max-width: 900px;
-      margin: 0 auto;
+    /* The main container — centers content and limits width */
+    .container {
+      max-width: 860px;    /* never wider than 860px */
+      margin: 0 auto;      /* centered horizontally */
     }
 
-    header {
-      margin-bottom: 2rem;
-    }
-
-    header h1 {
-      font-size: 22px;
-      font-weight: 500;
-      color: var(--text);
-      margin-bottom: 4px;
-    }
-
-    header p {
-      font-size: 14px;
-      color: var(--text2);
-    }
-
-    /* ── Card ── */
+    /* White box / card styling — used for each section */
     .card {
-      background: var(--bg);
-      border-radius: var(--radius-lg);
-      border: 0.5px solid var(--border);
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;    /* rounded corners */
       padding: 1.5rem;
-      margin-bottom: 1.25rem;
+      margin-bottom: 1.5rem; /* space below each card */
     }
 
-    .card-title {
+    /* Small gray label above each section */
+    .section-label {
       font-size: 13px;
-      font-weight: 500;
-      color: var(--text2);
-      letter-spacing: 0.03em;
-      margin-bottom: 1rem;
+      color: #888;
+      margin-bottom: 12px;
     }
 
-    /* ── Inputs ── */
-    .inputs-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
+    /* Side-by-side layout for the two input fields */
+    .input-row {
+      display: flex;   /* puts children side by side */
+      gap: 16px;       /* space between them */
     }
 
-    @media (max-width: 500px) {
-      .inputs-row { grid-template-columns: 1fr; }
+    /* Each input field + its label */
+    .field {
+      flex: 1;         /* each field takes equal width */
     }
 
+    /* The label text above an input */
     .field label {
-      display: block;
+      display: block;        /* label on its own line */
       font-size: 13px;
-      color: var(--text2);
+      color: #555;
       margin-bottom: 6px;
     }
 
+    /* The actual dropdown and number input */
     .field select,
     .field input {
       width: 100%;
       padding: 8px 10px;
       font-size: 14px;
-      border: 0.5px solid var(--border);
-      border-radius: var(--radius);
-      background: var(--bg);
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.15s;
+      border: 1px solid #ccc;
+      border-radius: 6px;
     }
 
-    .field select:focus,
-    .field input:focus {
-      border-color: rgba(0,0,0,0.35);
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.06);
-    }
-
-    /* ── Metric cards ── */
+    /* Grid layout for the metric summary boxes */
     .metrics-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
       gap: 12px;
     }
 
-    .metric {
-      background: var(--bg2);
-      border-radius: var(--radius);
+    /* Each individual metric box */
+    .metric-box {
+      background: #f5f5f5;
+      border-radius: 6px;
       padding: 1rem;
     }
 
-    .metric-label {
+    /* Small label inside a metric box */
+    .metric-box .label {
       font-size: 12px;
-      color: var(--text2);
+      color: #888;
       margin-bottom: 4px;
     }
 
-    .metric-value {
-      font-size: 22px;
-      font-weight: 500;
-      color: var(--text);
+    /* The big number inside a metric box */
+    .metric-box .value {
+      font-size: 20px;
+      font-weight: bold;
     }
 
-    .metric-sub {
+    /* The small note below the big number */
+    .metric-box .note {
       font-size: 11px;
-      color: var(--text3);
+      color: #aaa;
       margin-top: 2px;
     }
 
-    /* ── Table ── */
-    .table-wrap {
-      overflow-x: auto;
-    }
-
+    /* The cash flow table */
     table {
       width: 100%;
-      border-collapse: collapse;
+      border-collapse: collapse; /* removes double borders */
       font-size: 13px;
-      min-width: 620px;
     }
 
+    /* Table header row */
     thead th {
       text-align: right;
       padding: 8px 10px;
-      font-weight: 500;
       font-size: 12px;
-      color: var(--text2);
-      border-bottom: 0.5px solid var(--border);
-      white-space: nowrap;
+      color: #888;
+      border-bottom: 1px solid #ddd;
     }
 
     thead th:first-child { text-align: left; }
 
+    /* Table data cells */
     tbody td {
       text-align: right;
       padding: 7px 10px;
-      border-bottom: 0.5px solid var(--border);
-      color: var(--text);
+      border-bottom: 1px solid #f0f0f0;
     }
 
     tbody td:first-child {
       text-align: left;
-      font-weight: 500;
+      font-weight: bold;
     }
 
-    tbody tr:hover td { background: var(--bg2); }
+    /* Green color for positive numbers */
+    .green { color: #3b6d11; }
 
-    tbody tr:last-child td { border-bottom: none; }
+    /* Red color for negative numbers */
+    .red { color: #a32d2d; }
 
-    .pos { color: var(--green); }
-    .neg { color: var(--red); }
+    /* Highlight the payback year row in green */
+    .payback-row td { color: #3b6d11; font-weight: bold; }
 
-    tr.payback-row td { color: var(--green); font-weight: 500; }
+    /* Highlight a row when you hover over it */
+    tbody tr:hover td { background: #f9f9f9; }
 
-    /* ── Footer ── */
+    /* Small footer text at the bottom */
     footer {
-      margin-top: 2rem;
-      font-size: 12px;
-      color: var(--text3);
       text-align: center;
-      line-height: 1.8;
-    }
-
-    footer a {
-      color: var(--text2);
+      font-size: 12px;
+      color: #aaa;
+      margin-top: 1rem;
     }
   </style>
 </head>
+
 <body>
 
-<div class="page">
+<div class="container">
 
-  <header>
-    <h1>Solar Project Financial Calculator</h1>
-    <p>25-year cash flow model for US residential rooftop solar. All-equity, no financing.</p>
-  </header>
+  <h2>Solar Project Financial Calculator</h2>
+  <p style="color: #888; margin-bottom: 1.5rem;">
+    Enter a US state and system size to see a 25-year cash flow projection.
+  </p>
 
-  <!-- Inputs -->
+  <!-- =====================================================
+    INPUTS SECTION
+    HTML inputs let the user type/choose values.
+    We read these values in JavaScript using document.getElementById()
+  ====================================================== -->
   <div class="card">
-    <div class="card-title">Inputs</div>
-    <div class="inputs-row">
+    <div class="section-label">Inputs</div>
+    <div class="input-row">
+
+      <!-- Dropdown for selecting a US state -->
       <div class="field">
         <label for="stateSelect">US State</label>
+        <!--
+          <select> creates a dropdown menu.
+          id="stateSelect" lets JavaScript find this element.
+          We fill it with options using JavaScript below.
+        -->
         <select id="stateSelect"></select>
       </div>
+
+      <!-- Number input for system size -->
       <div class="field">
         <label for="systemSize">System size (kW DC)</label>
+        <!--
+          <input type="number"> creates a number field.
+          value="10" sets the default value to 10.
+          min and max set allowed range.
+        -->
         <input type="number" id="systemSize" value="10" min="1" max="1000" step="0.5" />
       </div>
+
     </div>
   </div>
 
-  <!-- Metrics -->
+  <!-- =====================================================
+    METRICS SECTION
+    These boxes show summary numbers.
+    Their content is filled in by JavaScript.
+    id="mXxx" is how JavaScript finds and updates each box.
+  ====================================================== -->
   <div class="card">
-    <div class="card-title">Key metrics</div>
+    <div class="section-label">Key metrics</div>
     <div class="metrics-grid">
-      <div class="metric">
-        <div class="metric-label">System upfront price</div>
-        <div class="metric-value" id="mGross">—</div>
-        <div class="metric-sub">before ITC</div>
+
+      <div class="metric-box">
+        <div class="label">System upfront price</div>
+        <div class="value" id="mGross">—</div>
+        <div class="note">before ITC</div>
       </div>
-      <div class="metric">
-        <div class="metric-label">Net cost after ITC</div>
-        <div class="metric-value" id="mCost">—</div>
-        <div class="metric-sub">after 30% tax credit</div>
+
+      <div class="metric-box">
+        <div class="label">Net cost after ITC</div>
+        <div class="value" id="mCost">—</div>
+        <div class="note">after 30% tax credit</div>
       </div>
-      <div class="metric">
-        <div class="metric-label">Annual generation</div>
-        <div class="metric-value" id="mGen">—</div>
-        <div class="metric-sub">kWh / year</div>
+
+      <div class="metric-box">
+        <div class="label">Annual generation</div>
+        <div class="value" id="mGen">—</div>
+        <div class="note">kWh / year</div>
       </div>
-      <div class="metric">
-        <div class="metric-label">Electricity rate</div>
-        <div class="metric-value" id="mRate">—</div>
-        <div class="metric-sub">¢/kWh residential (Year 1)</div>
+
+      <div class="metric-box">
+        <div class="label">Electricity rate</div>
+        <div class="value" id="mRate">—</div>
+        <div class="note">¢/kWh (Year 1)</div>
       </div>
-      <div class="metric">
-        <div class="metric-label">Project IRR</div>
-        <div class="metric-value" id="mIRR">—</div>
-        <div class="metric-sub">25-year unlevered</div>
+
+      <div class="metric-box">
+        <div class="label">Project IRR</div>
+        <div class="value" id="mIRR">—</div>
+        <div class="note">25-year unlevered</div>
       </div>
-      <div class="metric">
-        <div class="metric-label">Payback period</div>
-        <div class="metric-value" id="mPayback">—</div>
-        <div class="metric-sub">simple payback</div>
+
+      <div class="metric-box">
+        <div class="label">Payback period</div>
+        <div class="value" id="mPayback">—</div>
+        <div class="note">simple payback</div>
       </div>
+
     </div>
   </div>
 
-  <!-- Cash flow table -->
+  <!-- =====================================================
+    CASH FLOW TABLE SECTION
+    The <tbody id="cfBody"> is empty here.
+    JavaScript fills in rows dynamically when the user changes inputs.
+  ====================================================== -->
   <div class="card">
-    <div class="card-title">25-year cash flow table &nbsp;·&nbsp; ★ = payback year</div>
-    <div class="table-wrap">
+    <div class="section-label">25-year cash flow table &nbsp;·&nbsp; ★ marks the payback year</div>
+    <div style="overflow-x: auto;">
       <table>
         <thead>
           <tr>
-            <th>Year</th>
+            <th style="text-align:left">Year</th>
             <th>Generation (kWh)</th>
             <th>Elec. rate (¢/kWh)</th>
             <th>Energy savings ($)</th>
@@ -277,163 +279,360 @@
             <th>Cumulative ($)</th>
           </tr>
         </thead>
+        <!--
+          tbody is empty on purpose.
+          JavaScript will create <tr> rows and insert them here.
+        -->
         <tbody id="cfBody"></tbody>
       </table>
     </div>
   </div>
 
   <footer>
-    Electricity rates: <a href="https://www.electricchoice.com/electricity-prices-by-state/" target="_blank">ElectricChoice.com</a> (May 2026) &nbsp;·&nbsp;
-    Assumptions: $2.50/W installed cost · 1,400 kWh/kW/yr · 2.5% annual escalation · $15/kW/yr O&amp;M · 30% ITC Year 0
+    Rates: ElectricChoice.com (May 2026) &nbsp;·&nbsp;
+    $2.50/W cost · 1,400 kWh/kW/yr · 2.5% escalation · $15/kW/yr O&amp;M · 30% ITC
   </footer>
 
-</div>
+</div><!-- end .container -->
 
+
+<!-- =========================================================
+  JAVASCRIPT SECTION
+  Everything below is logic — it reads inputs, does math,
+  and updates the HTML above with results.
+
+  JavaScript runs in the browser. No server needed.
+  It executes top-to-bottom when the page loads.
+========================================================== -->
 <script>
-  // ── State electricity rates (¢/kWh residential, May 2026, ElectricChoice.com) ──
+
+  // ── STEP 1: DATA ──────────────────────────────────────────
+  // This is a JavaScript "object" — like a dictionary.
+  // Key = state name (string), Value = electricity rate in ¢/kWh
+  // Source: ElectricChoice.com, May 2026, residential rates
+
   const STATE_RATES = {
-    "Alabama": 16.79, "Alaska": 26.57, "Arizona": 15.62, "Arkansas": 13.32,
-    "California": 33.75, "Colorado": 16.33, "Connecticut": 27.84, "Delaware": 18.39,
-    "District of Columbia": 24.03, "Florida": 15.77, "Georgia": 14.60, "Hawaii": 39.89,
-    "Idaho": 12.51, "Illinois": 18.82, "Indiana": 17.42, "Iowa": 13.54,
-    "Kansas": 15.23, "Kentucky": 13.68, "Louisiana": 12.44, "Maine": 29.55,
-    "Maryland": 22.40, "Massachusetts": 31.51, "Michigan": 20.55, "Minnesota": 16.44,
-    "Mississippi": 14.53, "Missouri": 13.01, "Montana": 14.33, "Nebraska": 13.19,
-    "Nevada": 13.83, "New Hampshire": 25.12, "New Jersey": 22.48, "New Mexico": 15.09,
-    "New York": 23.44, "North Carolina": 14.37, "North Dakota": 12.71, "Ohio": 16.81,
-    "Oklahoma": 13.44, "Oregon": 14.22, "Pennsylvania": 18.15, "Rhode Island": 28.43,
-    "South Carolina": 15.22, "South Dakota": 14.11, "Tennessee": 13.77, "Texas": 15.10,
-    "Utah": 12.89, "Vermont": 22.76, "Virginia": 15.92, "Washington": 12.93,
+    "Alabama": 16.79,   "Alaska": 26.57,    "Arizona": 15.62,
+    "Arkansas": 13.32,  "California": 33.75, "Colorado": 16.33,
+    "Connecticut": 27.84, "Delaware": 18.39, "District of Columbia": 24.03,
+    "Florida": 15.77,   "Georgia": 14.60,   "Hawaii": 39.89,
+    "Idaho": 12.51,     "Illinois": 18.82,  "Indiana": 17.42,
+    "Iowa": 13.54,      "Kansas": 15.23,    "Kentucky": 13.68,
+    "Louisiana": 12.44, "Maine": 29.55,     "Maryland": 22.40,
+    "Massachusetts": 31.51, "Michigan": 20.55, "Minnesota": 16.44,
+    "Mississippi": 14.53, "Missouri": 13.01, "Montana": 14.33,
+    "Nebraska": 13.19,  "Nevada": 13.83,    "New Hampshire": 25.12,
+    "New Jersey": 22.48, "New Mexico": 15.09, "New York": 23.44,
+    "North Carolina": 14.37, "North Dakota": 12.71, "Ohio": 16.81,
+    "Oklahoma": 13.44,  "Oregon": 14.22,    "Pennsylvania": 18.15,
+    "Rhode Island": 28.43, "South Carolina": 15.22, "South Dakota": 14.11,
+    "Tennessee": 13.77, "Texas": 15.10,     "Utah": 12.89,
+    "Vermont": 22.76,   "Virginia": 15.92,  "Washington": 12.93,
     "West Virginia": 13.11, "Wisconsin": 18.06, "Wyoming": 12.55
   };
 
-  // ── Model constants ──
-  const COST_PER_W  = 2.50;   // $/W installed
-  const GEN_PER_KW  = 1400;   // kWh/kW/year (location-agnostic)
-  const ESCALATION  = 0.025;  // 2.5% annual electricity price escalation
-  const OM_PER_KW   = 15;     // $/kW/year O&M (flat)
-  const ITC         = 0.30;   // 30% Investment Tax Credit applied Year 0
-  const YEARS       = 25;
 
-  // ── Populate state dropdown ──
-  const sel = document.getElementById('stateSelect');
-  Object.keys(STATE_RATES).sort().forEach(state => {
-    const opt = document.createElement('option');
-    opt.value = state;
-    opt.textContent = state;
-    if (state === 'New York') opt.selected = true;
-    sel.appendChild(opt);
+  // ── STEP 2: MODEL ASSUMPTIONS ─────────────────────────────
+  // These are "constants" — values that never change.
+  // const means you can't accidentally overwrite them later.
+
+  const COST_PER_W = 2.50;   // $2.50 per watt installed cost
+  const GEN_PER_KW = 1400;   // 1,400 kWh generated per kW per year
+  const ESCALATION = 0.025;  // electricity price grows 2.5% per year
+  const OM_PER_KW  = 15;     // $15 per kW per year for operations & maintenance
+  const ITC        = 0.30;   // 30% Investment Tax Credit (reduces upfront cost)
+  const YEARS      = 25;     // project lifetime in years
+
+
+  // ── STEP 3: POPULATE THE STATE DROPDOWN ───────────────────
+  // We use JavaScript to fill the <select> with <option> tags
+  // instead of writing all 50 states by hand in HTML.
+
+  // document.getElementById("stateSelect") finds the <select> element in the HTML
+  const dropdown = document.getElementById("stateSelect");
+
+  // Object.keys(STATE_RATES) gets all the state names as an array
+  // .sort() sorts them alphabetically
+  Object.keys(STATE_RATES).sort().forEach(function(stateName) {
+
+    // Create a new <option> element
+    const option = document.createElement("option");
+
+    // Set its value and display text to the state name
+    option.value = stateName;
+    option.textContent = stateName;
+
+    // Pre-select New York as the default
+    if (stateName === "New York") {
+      option.selected = true;
+    }
+
+    // Add this option to the dropdown
+    dropdown.appendChild(option);
   });
 
-  // ── IRR solver (bisection method) ──
-  // Finds the discount rate that sets NPV of cashflows to zero.
-  function calcIRR(cashflows) {
-    let lo = -0.999, hi = 10.0, mid = 0;
-    for (let i = 0; i < 300; i++) {
-      mid = (lo + hi) / 2;
-      // NPV = sum of CF_t / (1 + r)^t
-      const npv = cashflows.reduce((sum, cf, t) => sum + cf / Math.pow(1 + mid, t), 0);
-      if (Math.abs(npv) < 0.001) break;
-      npv > 0 ? (lo = mid) : (hi = mid);
+
+  // ── STEP 4: IRR CALCULATOR ────────────────────────────────
+  // IRR = Internal Rate of Return
+  // Definition: the discount rate that makes NPV (net present value) = 0
+  //
+  // How bisection works:
+  // - We guess a rate, calculate NPV at that rate
+  // - If NPV > 0, the real IRR is higher → move our lower bound up
+  // - If NPV < 0, the real IRR is lower  → move our upper bound down
+  // - Repeat 200 times → converges on the answer
+  //
+  // You don't need to memorize this. Just know:
+  // Input:  array of cash flows [year0, year1, year2, ...]
+  // Output: the IRR as a decimal (e.g. 0.12 = 12%)
+
+  function calculateIRR(cashflows) {
+    let lowerBound = -0.999; // IRR can't be below -100%
+    let upperBound = 10.0;   // IRR won't exceed 1000% for solar
+    let guess = 0;
+
+    for (let i = 0; i < 200; i++) {
+      // Try the midpoint between our bounds
+      guess = (lowerBound + upperBound) / 2;
+
+      // Calculate NPV at this guess rate
+      // NPV formula: sum of [ cashflow_t / (1 + rate)^t ] for each year t
+      let npv = 0;
+      for (let t = 0; t < cashflows.length; t++) {
+        npv = npv + cashflows[t] / Math.pow(1 + guess, t);
+      }
+
+      // If NPV is close enough to zero, we found the IRR
+      if (Math.abs(npv) < 0.01) break;
+
+      // Adjust our bounds based on whether NPV is positive or negative
+      if (npv > 0) {
+        lowerBound = guess; // IRR is higher than our guess
+      } else {
+        upperBound = guess; // IRR is lower than our guess
+      }
     }
-    return mid;
+
+    return guess; // return the IRR as a decimal
   }
 
-  // ── Number formatter ──
-  function fmt(n) {
-    if (n === null || n === undefined) return '—';
-    const abs = Math.abs(n);
-    const str = abs.toLocaleString('en-US', { maximumFractionDigits: 0 });
-    return (n < 0 ? '-$' : '$') + str;
+
+  // ── STEP 5: NUMBER FORMATTER ──────────────────────────────
+  // Turns a raw number like -25000 into a readable string like "-$25,000"
+  // We use this everywhere we display dollar amounts.
+
+  function formatDollar(number) {
+    // Get the absolute value (strip negative sign for formatting)
+    const absValue = Math.abs(number);
+
+    // toLocaleString adds commas: 25000 → "25,000"
+    const formatted = absValue.toLocaleString("en-US", { maximumFractionDigits: 0 });
+
+    // Add back the sign and dollar symbol
+    if (number < 0) {
+      return "-$" + formatted;
+    } else {
+      return "$" + formatted;
+    }
   }
 
-  // ── Main calculation ──
+
+  // ── STEP 6: THE MAIN FUNCTION ─────────────────────────────
+  // This function runs every time the user changes an input.
+  // It reads the inputs → does the math → updates the page.
+
   function run() {
-    const state  = sel.value;
-    const kw     = parseFloat(document.getElementById('systemSize').value) || 10;
-    const rate   = STATE_RATES[state]; // ¢/kWh
 
-    // Costs
-    const grossCost  = kw * 1000 * COST_PER_W;  // Total installed cost before ITC
-    const itcCredit  = grossCost * ITC;           // 30% ITC reduces Year 0 outflow
-    const netCost    = grossCost - itcCredit;     // Actual cash out in Year 0
+    // --- Read inputs from the page ---
 
-    // Generation
-    const annualGen  = kw * GEN_PER_KW;          // kWh/year (flat, no degradation assumed)
-    const annualOM   = kw * OM_PER_KW;           // $/year O&M
+    // .value gets the current value of a form element
+    const selectedState = dropdown.value;
+    const systemSizeKW  = parseFloat(document.getElementById("systemSize").value) || 10;
+    // parseFloat converts a string like "10.5" to a number
+    // the || 10 is a fallback: if the field is empty, use 10
 
-    // Build cash flow array: index 0 = Year 0 outflow
-    const cashflows  = [-netCost];
-    const rows       = [];
-    let cumulative   = -netCost;
-    let paybackYear  = null;
+    // Look up the electricity rate for the selected state (in ¢/kWh)
+    const electricityRateCents = STATE_RATES[selectedState];
 
-    for (let y = 1; y <= YEARS; y++) {
-      // Electricity rate escalates 2.5%/year starting from Year 1
-      const elecRate  = (rate / 100) * Math.pow(1 + ESCALATION, y - 1); // $/kWh
-      const savings   = annualGen * elecRate;   // Revenue from avoided electricity cost
-      const net       = savings - annualOM;     // Net annual cash flow
-      cumulative     += net;
-      cashflows.push(net);
 
-      // Payback = first year cumulative turns non-negative
-      if (paybackYear === null && cumulative >= 0) paybackYear = y;
+    // --- Calculate upfront costs ---
 
-      rows.push({ y, gen: annualGen, rate: elecRate * 100, savings, om: annualOM, net, cumulative });
+    // Total installed cost before any incentives
+    // Formula: kW × 1000 (converts to watts) × $2.50/watt
+    const grossCost = systemSizeKW * 1000 * COST_PER_W;
+
+    // 30% ITC tax credit reduces the effective cost
+    const itcCreditAmount = grossCost * ITC;
+
+    // Net cost = what the customer actually pays out of pocket
+    const netCost = grossCost - itcCreditAmount;
+
+
+    // --- Calculate generation ---
+
+    // Annual energy production (kWh/year)
+    // Assumes 1,400 kWh produced per kW of system size, every year
+    const annualGenerationKWh = systemSizeKW * GEN_PER_KW;
+
+    // Annual O&M cost (flat, does not escalate)
+    const annualOMCost = systemSizeKW * OM_PER_KW;
+
+
+    // --- Build 25-year cash flow model ---
+
+    // cashflowArray stores one number per year (Year 0 through Year 25)
+    // Year 0 is negative (money going out = investment)
+    // Years 1-25 are positive (money coming in = savings minus costs)
+    const cashflowArray = [-netCost]; // start with Year 0 outflow
+
+    // rows stores all the data we need to display in the table
+    const rows = [];
+
+    // cumulative tracks the running total of all cash flows
+    let cumulative = -netCost;
+
+    // paybackYear is null until we find the year cumulative turns positive
+    let paybackYear = null;
+
+    // Loop from Year 1 to Year 25
+    for (let year = 1; year <= YEARS; year++) {
+
+      // Electricity rate escalates 2.5% each year
+      // Math.pow(base, exponent) = base^exponent
+      // e.g. Year 1: rate × 1.025^0 = rate × 1.000 (no change yet)
+      //      Year 2: rate × 1.025^1 = rate × 1.025
+      //      Year 3: rate × 1.025^2 = rate × 1.0506
+      const rateThisYear = (electricityRateCents / 100) * Math.pow(1 + ESCALATION, year - 1);
+      // Dividing by 100 converts ¢/kWh → $/kWh
+
+      // Energy savings = kWh generated × $/kWh avoided
+      const energySavings = annualGenerationKWh * rateThisYear;
+
+      // Net cash flow for this year = savings minus O&M costs
+      const netCashFlow = energySavings - annualOMCost;
+
+      // Add to running cumulative total
+      cumulative = cumulative + netCashFlow;
+
+      // Add this year's net cash flow to the IRR array
+      cashflowArray.push(netCashFlow);
+
+      // Check if this is the payback year (first year cumulative >= 0)
+      if (paybackYear === null && cumulative >= 0) {
+        paybackYear = year;
+      }
+
+      // Store all values for this year so we can display them in the table
+      rows.push({
+        year:       year,
+        gen:        annualGenerationKWh,
+        rate:       rateThisYear * 100,  // convert back to ¢/kWh for display
+        savings:    energySavings,
+        om:         annualOMCost,
+        net:        netCashFlow,
+        cumulative: cumulative
+      });
     }
 
-    // IRR
-    const irr = calcIRR(cashflows);
+    // Calculate IRR using all 26 cash flows (Year 0 through Year 25)
+    const projectIRR = calculateIRR(cashflowArray);
 
-    // ── Update metric cards ──
-    document.getElementById('mGross').textContent   = '$' + Math.round(grossCost).toLocaleString('en-US');
-    document.getElementById('mCost').textContent    = '$' + Math.round(netCost).toLocaleString('en-US');
-    document.getElementById('mGen').textContent     = Math.round(annualGen).toLocaleString('en-US');
-    document.getElementById('mRate').textContent    = rate.toFixed(2) + '¢';
-    document.getElementById('mIRR').textContent     = isFinite(irr) ? (irr * 100).toFixed(1) + '%' : 'N/A';
-    document.getElementById('mPayback').textContent = paybackYear ? paybackYear + ' yrs' : '>25 yrs';
 
-    // ── Render cash flow table ──
-    const tbody = document.getElementById('cfBody');
-    tbody.innerHTML = '';
+    // --- Update the metric boxes on the page ---
+    // .textContent sets the text inside an HTML element
 
-    // Year 0 row
-    const yr0 = document.createElement('tr');
-    yr0.innerHTML = `
+    document.getElementById("mGross").textContent =
+      "$" + Math.round(grossCost).toLocaleString("en-US");
+
+    document.getElementById("mCost").textContent =
+      "$" + Math.round(netCost).toLocaleString("en-US");
+
+    document.getElementById("mGen").textContent =
+      Math.round(annualGenerationKWh).toLocaleString("en-US");
+
+    document.getElementById("mRate").textContent =
+      electricityRateCents.toFixed(2) + "¢";
+
+    document.getElementById("mIRR").textContent =
+      isFinite(projectIRR) ? (projectIRR * 100).toFixed(1) + "%" : "N/A";
+    // isFinite() checks the number is a valid finite number (not Infinity or NaN)
+
+    document.getElementById("mPayback").textContent =
+      paybackYear ? paybackYear + " yrs" : ">25 yrs";
+
+
+    // --- Build the cash flow table ---
+
+    // Get the <tbody> element where we'll insert rows
+    const tableBody = document.getElementById("cfBody");
+
+    // Clear any existing rows (from a previous calculation)
+    tableBody.innerHTML = "";
+
+    // --- Year 0 row (the investment year) ---
+    const year0Row = document.createElement("tr"); // create a new table row
+    year0Row.innerHTML = `
       <td>0</td>
       <td>—</td>
       <td>—</td>
+      <td class="green">ITC: +${formatDollar(itcCreditAmount)}</td>
       <td>—</td>
-      <td class="pos">ITC: +${fmt(itcCredit)}</td>
-      <td class="neg">${fmt(-netCost)}</td>
-      <td class="neg">${fmt(-netCost)}</td>
+      <td class="red">${formatDollar(-netCost)}</td>
+      <td class="red">${formatDollar(-netCost)}</td>
     `;
-    tbody.appendChild(yr0);
+    // The backtick string above is a "template literal" — it lets you
+    // embed variables using ${variableName} inside a string.
+    tableBody.appendChild(year0Row); // add the row to the table
 
-    // Years 1–25
-    rows.forEach(r => {
-      const isPayback = r.y === paybackYear;
-      const tr = document.createElement('tr');
-      if (isPayback) tr.className = 'payback-row';
-      tr.innerHTML = `
-        <td>${r.y}${isPayback ? ' ★' : ''}</td>
-        <td>${Math.round(r.gen).toLocaleString('en-US')}</td>
+    // --- Years 1–25 rows ---
+    rows.forEach(function(r) {
+      // r is each object we stored in the rows array above
+
+      const isPaybackYear = (r.year === paybackYear);
+
+      const row = document.createElement("tr");
+
+      // Add a CSS class to highlight the payback year
+      if (isPaybackYear) {
+        row.className = "payback-row";
+      }
+
+      // Build the row HTML using the data from this year
+      row.innerHTML = `
+        <td>${r.year}${isPaybackYear ? " ★" : ""}</td>
+        <td>${Math.round(r.gen).toLocaleString("en-US")}</td>
         <td>${r.rate.toFixed(2)}</td>
-        <td class="pos">${fmt(r.savings)}</td>
-        <td class="neg">-${fmt(r.om)}</td>
-        <td class="${r.net >= 0 ? 'pos' : 'neg'}">${fmt(r.net)}</td>
-        <td class="${r.cumulative >= 0 ? 'pos' : 'neg'}">${fmt(r.cumulative)}</td>
+        <td class="green">${formatDollar(r.savings)}</td>
+        <td class="red">-${formatDollar(r.om)}</td>
+        <td class="${r.net >= 0 ? "green" : "red"}">${formatDollar(r.net)}</td>
+        <td class="${r.cumulative >= 0 ? "green" : "red"}">${formatDollar(r.cumulative)}</td>
       `;
-      tbody.appendChild(tr);
+      // The ternary operator: condition ? valueIfTrue : valueIfFalse
+      // e.g.  r.net >= 0 ? "green" : "red"
+      // means: if net is positive or zero use "green", otherwise use "red"
+
+      tableBody.appendChild(row); // add the row to the table
     });
-  }
 
-  // ── Event listeners ──
-  sel.addEventListener('change', run);
-  document.getElementById('systemSize').addEventListener('input', run);
+  } // end of run()
 
-  // ── Initial render ──
+
+  // ── STEP 7: EVENT LISTENERS ───────────────────────────────
+  // "Listen" for changes to the inputs.
+  // When the user picks a different state or types a new system size,
+  // call run() again to recalculate everything.
+
+  dropdown.addEventListener("change", run);
+  // "change" fires when the user picks a different dropdown option
+
+  document.getElementById("systemSize").addEventListener("input", run);
+  // "input" fires every time the user types a character in the number field
+
+
+  // ── STEP 8: FIRST RUN ─────────────────────────────────────
+  // Call run() once when the page loads so the table isn't empty.
   run();
+
 </script>
 
 </body>
