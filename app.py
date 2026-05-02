@@ -82,7 +82,7 @@ with col2 :
     min_value=1,
     max_value=1000,
     value=10,      # default value
-    step=1         # how much each click of the arrow changes it
+    step=1,         # how much each click of the arrow changes it
     key="system_size"
 )
 
