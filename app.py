@@ -77,7 +77,7 @@ with col1 :
 
 # Number input for system size
 with col2 :
-system_size_kw = st.number_input(
+    system_size_kw = st.number_input(
     label="System size (kW DC)",
     min_value=1,
     max_value=1000,
