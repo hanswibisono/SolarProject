@@ -88,7 +88,6 @@ with col2 :
 # ── SIDEBAR  ───────────────────────────────────────────
 
 # Show the model assumptions in the sidebar so the user can see them
-st.sidebar.divider()  # draws a horizontal line
 st.sidebar.subheader("Model assumptions")
 st.sidebar.caption(f"Installed cost: ${COST_PER_W}/W")
 st.sidebar.caption(f"Generation: {GEN_PER_KW:,} kWh/kW/yr")
@@ -96,14 +95,6 @@ st.sidebar.caption(f"Electricity escalation: {ESCALATION*100:.1f}%/yr")
 st.sidebar.caption(f"O&M cost: ${OM_PER_KW}/kW/yr")
 st.sidebar.caption(f"ITC: {int(ITC*100)}% in Year 0")
 st.sidebar.caption("Source: ElectricChoice.com (May 2026)")
-
-st.sidebar.divider()
-st.sidebar.caption("Electricity rates: ElectricChoice.com (May 2026)")
-st.sidebar.caption(f"Assumptions: ${COST_PER_W}/W installed")
-st.sidebar.caption(f"{GEN_PER_KW:,} kWh/kW/yr")
-st.sidebar.caption(f"{ESCALATION*100:.1f}% annual escalation")
-st.sidebar.caption(f"${OM_PER_KW}/kW/yr O&M")
-st.sidebar.caption(f"{int(ITC*100)}% ITC Year 0")
 
 # ── FINANCIAL CALCULATIONS ───────────────────────────────────
 # All the math happens here, using the inputs from the sidebar.
@@ -232,14 +223,6 @@ year_zero = {
 # Convert rows list to a pandas DataFrame
 # A DataFrame is like a spreadsheet in Python — rows and columns
 df = pd.DataFrame([year_zero] + rows)
-
-# Convert Year column to string first so we can mix numbers and "6 ★"
-# pandas can't store both integers and strings in the same column by default
-df["Year"] = df["Year"].astype(str)
-
-# Now safely add the star to the payback year row
-if payback_year:
-    df.loc[df["Year"] == str(payback_year), "Year"] = f"{payback_year} ★"
 
 # Display the table using Streamlit
 # hide_index=True removes the default 0,1,2... row numbers on the left
