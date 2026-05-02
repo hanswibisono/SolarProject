@@ -61,6 +61,25 @@ STATE_RATES = {
     "West Virginia": 13.11, "Wisconsin": 18.06, "Wyoming": 12.55
 }
 
+# ── KEY INPUTS ───────────────────────────────
+st.subheader("Inputs")
+# Dropdown to select a US state
+# sorted() sorts the state names alphabetically
+selected_state = st.sidebar.selectbox(
+    label="US State",
+    options=sorted(STATE_RATES.keys()),  # list of all state names
+    index=sorted(STATE_RATES.keys()).index("New York")  # default to New York
+)
+
+# Number input for system size
+system_size_kw = st.sidebar.number_input(
+    label="System size (kW DC)",
+    min_value=1,
+    max_value=1000,
+    value=10,      # default value
+    step=1         # how much each click of the arrow changes it
+)
+
 # ── SIDEBAR  ───────────────────────────────────────────
 
 # Show the model assumptions in the sidebar so the user can see them
@@ -146,25 +165,6 @@ for year in range(1, YEARS + 1):
 # Calculate IRR using numpy_financial
 # npf.irr() takes a list of cash flows and returns the IRR as a decimal
 irr = npf.irr(cashflows)
-
-# ── KEY INPUTS ───────────────────────────────
-st.subheader("Inputs")
-# Dropdown to select a US state
-# sorted() sorts the state names alphabetically
-selected_state = st.sidebar.selectbox(
-    label="US State",
-    options=sorted(STATE_RATES.keys()),  # list of all state names
-    index=sorted(STATE_RATES.keys()).index("New York")  # default to New York
-)
-
-# Number input for system size
-system_size_kw = st.sidebar.number_input(
-    label="System size (kW DC)",
-    min_value=1,
-    max_value=1000,
-    value=10,      # default value
-    step=1         # how much each click of the arrow changes it
-)
 
 # ── METRIC CARDS (KEY OUTPUTS) ───────────────────────────────
 # st.columns(n) splits the page into n equal columns side by side.
