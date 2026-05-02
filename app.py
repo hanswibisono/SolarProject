@@ -63,8 +63,10 @@ STATE_RATES = {
 
 # ── KEY INPUTS ───────────────────────────────
 st.subheader("Inputs")
+col1, col2= st.columns(2)
 # Dropdown to select a US state
 # sorted() sorts the state names alphabetically
+with col1:
 selected_state = st.selectbox(
     label="US State",
     options=sorted(STATE_RATES.keys()),  # list of all state names
@@ -72,6 +74,7 @@ selected_state = st.selectbox(
 )
 
 # Number input for system size
+with col2:
 system_size_kw = st.number_input(
     label="System size (kW DC)",
     min_value=1,
