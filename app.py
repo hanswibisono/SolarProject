@@ -223,10 +223,10 @@ year_zero = {
     "Year":               0,
     "Generation (kWh)":   "—",
     "Rate (¢/kWh)":       "—",
-    "Energy Savings ($)": f"ITC: +${itc_credit:,.0f}",
+    "Energy Savings ($), annual generation x rate": f"ITC: +${itc_credit:,.0f}",
     "O&M Cost ($)":       "—",
-    "Net Cash Flow ($)":  round(-net_cost, 0),
-    "Cumulative ($)":     round(-net_cost, 0),
+    "Net Cash Flow ($), energy savings - annual O&M":  round(-net_cost, 0),
+    "Cumulative of net cash flow ($)":     round(-net_cost, 0),
 }
 
 # Convert rows list to a pandas DataFrame
