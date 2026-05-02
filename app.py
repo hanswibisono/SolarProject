@@ -83,7 +83,10 @@ with col2 :
     max_value=1000,
     value=10,      # default value
     step=1         # how much each click of the arrow changes it
+    key="system_size"
 )
+
+st.button("Calculate",type="primary")
 
 # ── SIDEBAR  ───────────────────────────────────────────
 
