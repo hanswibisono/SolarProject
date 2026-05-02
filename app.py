@@ -61,28 +61,7 @@ STATE_RATES = {
     "West Virginia": 13.11, "Wisconsin": 18.06, "Wyoming": 12.55
 }
 
-# ── SIDEBAR INPUTS ───────────────────────────────────────────
-# st.sidebar puts widgets in a panel on the left side of the page.
-# This keeps inputs separate from the results area.
-
-st.sidebar.header("Inputs")
-
-# Dropdown to select a US state
-# sorted() sorts the state names alphabetically
-selected_state = st.sidebar.selectbox(
-    label="US State",
-    options=sorted(STATE_RATES.keys()),  # list of all state names
-    index=sorted(STATE_RATES.keys()).index("New York")  # default to New York
-)
-
-# Number input for system size
-system_size_kw = st.sidebar.number_input(
-    label="System size (kW DC)",
-    min_value=1,
-    max_value=1000,
-    value=10,      # default value
-    step=1         # how much each click of the arrow changes it
-)
+# ── SIDEBAR  ───────────────────────────────────────────
 
 # Show the model assumptions in the sidebar so the user can see them
 st.sidebar.divider()  # draws a horizontal line
@@ -93,6 +72,14 @@ st.sidebar.caption(f"Electricity escalation: {ESCALATION*100:.1f}%/yr")
 st.sidebar.caption(f"O&M cost: ${OM_PER_KW}/kW/yr")
 st.sidebar.caption(f"ITC: {int(ITC*100)}% in Year 0")
 st.sidebar.caption("Source: ElectricChoice.com (May 2026)")
+
+st.sidebar.divider()
+st.sidebar.caption("Electricity rates: ElectricChoice.com (May 2026)")
+st.sidebar.caption(f"Assumptions: ${COST_PER_W}/W installed")
+st.sidebar.caption(f"{GEN_PER_KW:,} kWh/kW/yr")
+st.sidebar.caption(f"{ESCALATION*100:.1f}% annual escalation")
+st.sidebar.caption(f"${OM_PER_KW}/kW/yr O&M")
+st.sidebar.caption(f"{int(ITC*100)}% ITC Year 0")
 
 # ── FINANCIAL CALCULATIONS ───────────────────────────────────
 # All the math happens here, using the inputs from the sidebar.
@@ -159,6 +146,25 @@ for year in range(1, YEARS + 1):
 # Calculate IRR using numpy_financial
 # npf.irr() takes a list of cash flows and returns the IRR as a decimal
 irr = npf.irr(cashflows)
+
+# ── KEY INPUTS ───────────────────────────────
+st.subheader("Inputs")
+# Dropdown to select a US state
+# sorted() sorts the state names alphabetically
+selected_state = st.sidebar.selectbox(
+    label="US State",
+    options=sorted(STATE_RATES.keys()),  # list of all state names
+    index=sorted(STATE_RATES.keys()).index("New York")  # default to New York
+)
+
+# Number input for system size
+system_size_kw = st.sidebar.number_input(
+    label="System size (kW DC)",
+    min_value=1,
+    max_value=1000,
+    value=10,      # default value
+    step=1         # how much each click of the arrow changes it
+)
 
 # ── METRIC CARDS (KEY OUTPUTS) ───────────────────────────────
 # st.columns(n) splits the page into n equal columns side by side.
@@ -236,15 +242,4 @@ st.dataframe(
     df,
     hide_index=True,
     use_container_width=True   # stretches the table to fill the full width
-)
-
-# ── FOOTER ────────────────────────────────────────────────────
-st.divider()
-st.caption(
-    "Electricity rates: ElectricChoice.com (May 2026) · "
-    f"Assumptions: ${COST_PER_W}/W installed · "
-    f"{GEN_PER_KW:,} kWh/kW/yr · "
-    f"{ESCALATION*100:.1f}% annual escalation · "
-    f"${OM_PER_KW}/kW/yr O&M · "
-    f"{int(ITC*100)}% ITC Year 0"
 )
