@@ -161,10 +161,10 @@ for year in range(1, YEARS + 1):
         "Year":               year,
         "Generation (kWh)":   int(annual_gen),
         "Rate (¢/kWh)":       round(rate_this_year * 100, 2),
-        "Energy Savings ($)": round(energy_savings, 0),
+        "Energy Savings ($), annual generation x rate": round(energy_savings, 0),
         "O&M Cost ($)":       round(annual_om, 0),
-        "Net Cash Flow ($)":  round(net_cf, 0),
-        "Cumulative ($)":     round(cumulative, 0),
+        "Net Cash Flow ($), energy savings - annual O&M":  round(net_cf, 0),
+        "Cumulative of net cash flow ($)":     round(cumulative, 0),
     })
 
 # Calculate IRR using numpy_financial
