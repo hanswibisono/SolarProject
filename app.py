@@ -78,10 +78,10 @@ selected_state = st.sidebar.selectbox(
 # Number input for system size
 system_size_kw = st.sidebar.number_input(
     label="System size (kW DC)",
-    min_value=1.0,
-    max_value=1000.0,
-    value=10.0,      # default value
-    step=0.5         # how much each click of the arrow changes it
+    min_value=1,
+    max_value=1000,
+    value=10,      # default value
+    step=1         # how much each click of the arrow changes it
 )
 
 # Show the model assumptions in the sidebar so the user can see them
